@@ -29,8 +29,8 @@ if uploaded_file is not None:
         df["anomaly"] = model.predict(X)
 
         # Displaying the full data
-        st.subheader("📄 Dataset Overview with Anomalies")
-        st.dataframe(df)
+        #st.subheader("📄 Dataset Overview with Anomalies")
+        #st.dataframe(df)
 
         # Showing anomalies
         anomalies = df[df["anomaly"] == -1]
