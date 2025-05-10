@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -15,6 +14,10 @@ uploaded_file = st.file_uploader("Upload the student dataset (CSV)", type="csv")
 if uploaded_file is not None:
     df = pd.read_csv(uploaded_file)
     
+    # Show head of the dataset
+    st.subheader("📋 First 5 Rows of Uploaded Dataset")
+    st.dataframe(df.head())
+
     # Data Preprocessing
     if all(col in df.columns for col in ["Assignment_Score", "Test_Score", "Attendance"]):
         df["Total_Score"] = (df["Assignment_Score"] + df["Test_Score"]) / 2
@@ -25,8 +28,8 @@ if uploaded_file is not None:
         model.fit(X)
         df["anomaly"] = model.predict(X)
 
-        # Displaying the data
-        st.subheader("Dataset Overview")
+        # Displaying the full data
+        st.subheader("📄 Dataset Overview with Anomalies")
         st.dataframe(df)
 
         # Showing anomalies
@@ -41,9 +44,32 @@ if uploaded_file is not None:
 
         # Visualizations
         st.subheader("📊 Visualizations")
-        fig, ax = plt.subplots()
-        sns.scatterplot(data=df, x="Total_Score", y="Attendance", hue="anomaly", palette={1:'blue', -1:'red'}, ax=ax)
-        st.pyplot(fig)
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.write("### Scatter Plot (Total Score vs Attendance)")
+            fig, ax = plt.subplots()
+            sns.scatterplot(data=df, x="Total_Score", y="Attendance", hue="anomaly", palette={1:'blue', -1:'red'}, ax=ax)
+            st.pyplot(fig)
+
+        with col2:
+            st.write("### Pie Chart of Normal vs Anomalous Students")
+            pie_data = df["anomaly"].value_counts().rename(index={1:"Normal", -1:"Anomalous"})
+            fig2, ax2 = plt.subplots()
+            ax2.pie(pie_data, labels=pie_data.index, autopct='%1.1f%%', colors=['skyblue', 'salmon'], startangle=140)
+            ax2.axis('equal')
+            st.pyplot(fig2)
+
+        st.write("### Distribution of Total Scores (Histogram)")
+        fig3, ax3 = plt.subplots()
+        sns.histplot(df["Total_Score"], bins=20, kde=True, color="purple", ax=ax3)
+        st.pyplot(fig3)
+
+        st.write("### Attendance Distribution (Histogram)")
+        fig4, ax4 = plt.subplots()
+        sns.histplot(df["Attendance"], bins=20, kde=True, color="green", ax=ax4)
+        st.pyplot(fig4)
 
         # User Input for checking single student
         st.header("🔍 Check Single Student Performance")
